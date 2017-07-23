@@ -6,7 +6,7 @@ pipeline:
   test:
     image: golang:1.8
     commands:
-      - go get -t
+      - go get -t ./... -v
       - go get github.com/mattn/goveralls
       - goveralls -repotoken ${COVERALLS_TOKEN}
 
