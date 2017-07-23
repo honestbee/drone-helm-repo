@@ -9,7 +9,7 @@ RUN set -ex \
     curl \
   && curl -sLo /tmp/${FILENAME} http://storage.googleapis.com/kubernetes-helm/${FILENAME} \
   && tar -zxvf /tmp/${FILENAME} -C /tmp \
-  && mv /tmp/linux-amd64/helm /bin/helm 
+  && mv /tmp/linux-amd64/helm /bin/helm \
   && rm -rf /tmp 
 
 LABEL description="Helm."
