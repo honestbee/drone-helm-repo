@@ -5,7 +5,15 @@ workspace:
 pipeline:
   test:
     image: golang:1.8
+    environment:
+      - VERSION=v2.5.0
+
     commands:
+      - export FILENAME=helm-${VERSION}-linux-amd64.tar.gz
+      - curl -sLo /tmp/${FILENAME} http://storage.googleapis.com/kubernetes-helm/${FILENAME} 
+      - tar -zxvf /tmp/${FILENAME} -C /tmp
+      - mv /tmp/linux-amd64/helm /bin/helm 
+      - rm -rf /tmp
       - go get -v -t `go list ./...`
       - go get github.com/mattn/goveralls
       - goveralls -repotoken ${COVERALLS_TOKEN}
