@@ -1,0 +1,34 @@
+workspace:
+  base: /go
+  path: src/github.com/honestbee/drone-helm-repo
+
+pipeline:
+  test:
+    image: golang:1.8
+    commands:
+      - go get
+      - go get github.com/mattn/goveralls
+      - goveralls
+
+  compile:
+    image: golang:1.8
+    commands:
+      - export PATH=$PATH:/go/bin
+      - mkdir bin
+      - go build -a -tags netgo -ldflags "-s -w -X main.build=${DRONE_BUILD_NUMBER}" -o bin/drone-helm-repo
+
+  publish:
+    image: plugins/docker
+    repo: quay.io/honestbee/drone-helm-repo
+    tags: 
+      - "latest"
+      - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:7}
+    when:
+      branch: [master]
+
+  notify:
+    image: plugins/slack
+    webhook: ${SLACK_WEBHOOK}
+    channel: feed-devops
+    when:
+      status: [ success, failure ]
