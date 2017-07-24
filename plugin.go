@@ -36,6 +36,10 @@ type (
 
 // Exec will run the Drone plugin
 func (p *Plugin) Exec() error {
+	if p.Config.Debug {
+		p.debug()
+	}
+
 	//validate plugin config
 	err := validateConfig(p.Config)
 	if err != nil {
@@ -71,6 +75,19 @@ func (p *Plugin) Exec() error {
 	}
 	storeFiles(objectStore, packages, logger)
 	return nil
+}
+
+func (p *Plugin) debug() {
+	fmt.Println(p)
+	// debug env vars
+	for _, e := range os.Environ() {
+		fmt.Println("-Var:--", e)
+	}
+	// debug plugin obj
+	fmt.Printf("Source Dir: %s \n", p.Config.SourceDir)
+	fmt.Printf("Excluded Directories: %v \n", p.Config.Exclude)
+	fmt.Printf("Storage URL: %s \n", p.Config.StorageURL)
+	fmt.Printf("Repo URL: %s \n", p.Config.RepoURL)
 }
 
 func validateConfig(conf Config) error {
