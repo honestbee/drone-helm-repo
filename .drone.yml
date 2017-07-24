@@ -25,7 +25,7 @@ pipeline:
     repo: quay.io/honestbee/drone-helm-repo
     tags: 
       - "latest"
-      - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:7}
+      - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:8}
     when:
       branch: [master]
 
