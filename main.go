@@ -62,7 +62,7 @@ func initApp(runAction cli.ActionFunc) *cli.App {
 		cli.StringFlag{
 			Name:   "aws-region",
 			Usage:  "AWS Region `AWS_REGION`",
-			EnvVar: "AWS_REGION",
+			EnvVar: "PLUGIN_AWS_REGION, AWS_REGION",
 		},
 		cli.BoolFlag{
 			Name:   "debug",
