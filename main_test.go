@@ -10,8 +10,9 @@ import (
 func TestInitApp(t *testing.T) {
 
 	testEnvs := []struct {
-		envVars map[string]string
-		pass    bool
+		envVars    map[string]string
+		shouldFail bool
+		reason     string
 	}{
 		{
 			envVars: map[string]string{
@@ -21,16 +22,24 @@ func TestInitApp(t *testing.T) {
 				"PLUGIN_AWS_ACCESS_KEY": "TESTACCESSKEY",
 				"PLUGIN_AWS_SECRET_KEY": "TESTSECRETKEY",
 			},
-			pass: true,
+			shouldFail: false,
+			reason:     "All env variables provided",
 		},
 		{
 			envVars: map[string]string{
-				"PLUGIN_REPO_URL":       "http://charts.example.com",
-				"PLUGIN_AWS_REGION":     "ap-southeast-1",
-				"PLUGIN_AWS_ACCESS_KEY": "TESTACCESSKEY",
-				"PLUGIN_AWS_SECRET_KEY": "TESTSECRETKEY",
+				"PLUGIN_REPO_URL":   "http://charts.example.com",
+				"PLUGIN_AWS_REGION": "ap-southeast-1",
 			},
-			pass: false, //missing storage url
+			shouldFail: true,
+			reason:     "storage-url is missing",
+		},
+		{
+			envVars: map[string]string{
+				"PLUGIN_REPO_URL":    "http://charts.example.com",
+				"PLUGIN_STORAGE_URL": "s3://test-bucket/prefix",
+			},
+			shouldFail: true,
+			reason:     "aws-region is missing",
 		},
 	}
 
@@ -39,12 +48,12 @@ func TestInitApp(t *testing.T) {
 			os.Setenv(envvar, testEnv.envVars[envvar])
 		}
 		app := initApp(runEnvCheck)
-		err := app.Run([]string{""})
-		if (err == nil) != testEnv.pass {
-			if testEnv.pass {
-				t.Errorf("Expected %v to pass", testEnv.envVars)
+		app.Run([]string{""})
+		if envCheckFailed != testEnv.shouldFail {
+			if testEnv.shouldFail {
+				t.Errorf("Expected envTest to fail because %s - \nEnv: %v", testEnv.reason, testEnv.envVars)
 			} else {
-				t.Errorf("Expected %v to fail", testEnv.envVars)
+				t.Errorf("Expected envTest to pass - \nEnv: %v", testEnv.envVars)
 			}
 		}
 		// clean up
@@ -54,6 +63,11 @@ func TestInitApp(t *testing.T) {
 	}
 
 }
+
+// Do not communicate by sharing memory; instead, share memory by communicating.
+
+// but here we will share memory :scream:...
+var envCheckFailed bool
 
 func runEnvCheck(c *cli.Context) error {
 	conf := Config{
@@ -66,5 +80,8 @@ func runEnvCheck(c *cli.Context) error {
 		AWSSecretKey: c.String("aws-secret-key"),
 		AWSRegion:    c.String("aws-region"),
 	}
-	return validateConfig(conf)
+	err := validateConfig(conf)
+	envCheckFailed = (err != nil)
+	//if runAction returns error, os.Exit(1) causes tests to always fail
+	return nil
 }
