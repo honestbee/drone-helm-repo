@@ -53,8 +53,12 @@ func TestStoreFiles(t *testing.T) {
 		}
 	}()
 
-	storedFileCount := storeFiles(createStorageMock(), filesChan, logger)
+	storedFileCount, err := storeFiles(createStorageMock(), filesChan, logger)
 
+	if err != nil {
+		t.Error(err)
+		return
+	}
 	if storedFileCount != len(testfiles) {
 		t.Errorf("expected %d - got %d", len(testfiles), storedFileCount)
 		t.Errorf("%s\n", buf)

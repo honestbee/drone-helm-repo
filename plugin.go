@@ -73,8 +73,8 @@ func (p *Plugin) Exec() error {
 	default:
 		return fmt.Errorf("protocol %q not implemented yet", destinationURL.Scheme)
 	}
-	storeFiles(objectStore, packages, logger)
-	return nil
+	_, err = storeFiles(objectStore, packages, logger)
+	return err
 }
 
 func (p *Plugin) debug() {
@@ -110,14 +110,16 @@ func validateConfig(conf Config) error {
 	return nil
 }
 
-func storeFiles(storage storage.ObjectStore, in chan *util.FileStat, logger *util.Logger) int {
+func storeFiles(storage storage.ObjectStore, in chan *util.FileStat, logger *util.Logger) (int, error) {
 	concurrency := 5
 	var wg sync.WaitGroup
 
 	storedFilesCount := 0
+	var outerError error
 	for worker := 0; worker < concurrency; worker++ {
 		wg.Add(1)
 		go func() {
+			defer wg.Done()
 			for file := range in {
 				if file.Err != nil {
 					logger.Err.Println(file.Err)
@@ -125,15 +127,13 @@ func storeFiles(storage storage.ObjectStore, in chan *util.FileStat, logger *uti
 				}
 				err := storage.StoreFile(file, logger)
 				if err != nil {
-					logger.Err.Println(err)
-				} else {
-					storedFilesCount++
+					outerError = err
+					return //bail worker as soon one upload fails
 				}
-
+				storedFilesCount++
 			}
-			wg.Done()
 		}()
 	}
 	wg.Wait()
-	return storedFilesCount
+	return storedFilesCount, outerError
 }
