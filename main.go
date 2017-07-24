@@ -14,10 +14,18 @@ var build = "0" // build number set at compile-time
 var logger *util.Logger
 
 func main() {
+	app := initApp(run)
+
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func initApp(runAction cli.ActionFunc) *cli.App {
 	app := cli.NewApp()
 	app.Name = "helm repo plugin"
 	app.Usage = "Package and upload Helm charts to storage provider"
-	app.Action = run
+	app.Action = runAction
 	app.Version = fmt.Sprintf("1.0.%s", build)
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -62,10 +70,7 @@ func main() {
 			EnvVar: "PLUGIN_DEBUG,DEBUG",
 		},
 	}
-
-	if err := app.Run(os.Args); err != nil {
-		log.Fatal(err)
-	}
+	return app
 }
 
 func run(c *cli.Context) error {
