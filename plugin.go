@@ -48,7 +48,7 @@ func (p *Plugin) Exec() error {
 
 	destinationURL, _ := url.Parse(p.Config.StorageURL)
 	// get a temp dir to store generated packages
-	tempDir, err := ioutil.TempDir("", "output")
+	tempDir, err := ioutil.TempDir("./", "tempOutput")
 	if err != nil {
 		return err
 	}
