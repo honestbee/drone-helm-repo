@@ -70,17 +70,7 @@ func TestInitApp(t *testing.T) {
 var envCheckFailed bool
 
 func runEnvCheck(c *cli.Context) error {
-	conf := Config{
-		SourceDir:    c.String("source-dir"),
-		Exclude:      c.StringSlice("exclude"),
-		StorageURL:   c.String("storage-url"),
-		RepoURL:      c.String("repo-url"),
-		Debug:        c.Bool("debug"),
-		AWSAccessKey: c.String("aws-acces-key"),
-		AWSSecretKey: c.String("aws-secret-key"),
-		AWSRegion:    c.String("aws-region"),
-	}
-	err := validateConfig(conf)
+	err := validateConfig(configFromEnv(c))
 	envCheckFailed = (err != nil)
 	//if runAction returns error, os.Exit(1) causes tests to always fail
 	return nil

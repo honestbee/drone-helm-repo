@@ -73,19 +73,23 @@ func initApp(runAction cli.ActionFunc) *cli.App {
 	return app
 }
 
+func configFromEnv(c *cli.Context) Config {
+	return Config{
+		SourceDir:    c.String("source-dir"),
+		Exclude:      c.StringSlice("exclude"),
+		StorageURL:   c.String("storage-url"),
+		RepoURL:      c.String("repo-url"),
+		Debug:        c.Bool("debug"),
+		AWSAccessKey: c.String("aws-acces-key"),
+		AWSSecretKey: c.String("aws-secret-key"),
+		AWSRegion:    c.String("aws-region"),
+	}
+}
+
 func run(c *cli.Context) error {
 	logger = util.NewLogger(c.Bool("debug"), false)
 	plugin := Plugin{
-		Config: Config{
-			SourceDir:    c.String("source-dir"),
-			Exclude:      c.StringSlice("exclude"),
-			StorageURL:   c.String("storage-url"),
-			RepoURL:      c.String("repo-url"),
-			Debug:        c.Bool("debug"),
-			AWSAccessKey: c.String("aws-acces-key"),
-			AWSSecretKey: c.String("aws-secret-key"),
-			AWSRegion:    c.String("aws-region"),
-		},
+		Config: configFromEnv(c),
 	}
 	return plugin.Exec()
 }
