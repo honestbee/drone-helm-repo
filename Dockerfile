@@ -1,7 +1,7 @@
 FROM alpine:3.6
 MAINTAINER Vincent De Smet <vincent.drl@gmail.com>
 
-ENV VERSION v2.5.0
+ENV VERSION v2.5.1
 ENV FILENAME helm-${VERSION}-linux-amd64.tar.gz
 
 RUN set -ex \
