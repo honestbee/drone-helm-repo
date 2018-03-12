@@ -5,6 +5,10 @@
 
 Drone plugin to package and upload Helm charts to selected storage services
 
+Note: This plugin does not merge index.yaml and only keeps the latest chart version on the Repository index. To fix this, we wrote a plugin that pushes to [kubernetes-helm/ChartMuseum](https://github.com/kubernetes-helm/chartmuseum) instead (which supports S3/GCS/... )
+
+See [honestbee/drone-chartmuseum](https://github.com/honestbee/drone-chartmuseum)
+
 Supported storage services:
 
 - AWS S3
